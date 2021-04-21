@@ -1,0 +1,49 @@
+# Base miniconda image from dockerhub
+FROM conda/miniconda3
+
+# Install / update requirements
+RUN pip install --upgrade pip && \
+pip install tensorflow && \
+pip install Keras && \
+pip install xgboost && \
+pip install --upgrade nbdime && \
+pip install pixiedust && \
+pip install sklearn-pandas && \
+pip install pydot && \
+pip install pydot-ng && \
+conda install -y cython && \
+conda install -y statsmodels && \
+conda install -y jupyter && \
+conda install -y numpy && \
+conda install -y nose && \
+conda install -y pandas && \
+conda install -y scipy && \
+conda install -y bokeh && \
+conda install -y nltk && \
+conda install -y scikit-learn && \ 
+conda install -y setuptools && \
+conda install -y sympy && \
+conda install -y wheel && \
+conda install -y unicodecsv && \ 
+conda install -c conda-forge -y notebook jupyter_contrib_nbextensions=0.5.0 && \
+conda install -y seaborn && \
+conda install -y git && \
+conda install -y graphviz && \ 
+conda install -y dill && \ 
+conda install -y tini && \
+conda update -y --all && \
+conda clean -y --all
+
+# Configure jupyter notebook
+RUN jupyter notebook --generate-config && \
+echo "c.NotebookApp.token = ''" >> /root/.jupyter/jupyter_notebook_config.py && \
+echo "c.NotebookApp.allow_root = True" >> /root/.jupyter/jupyter_notebook_config.py && \
+echo "c.NotebookApp.notebook_dir = '/root/shared'" >> /root/.jupyter/jupyter_notebook_config.py && \
+jupyter nbextension enable python-markdown/main && \
+jupyter nbextension enable codefolding/main && \
+jupyter nbextension enable toc2/main
+
+# Run jupyter notebook server on container launch
+EXPOSE 8888
+ENTRYPOINT ["/usr/local/bin/tini", "--"]
+CMD ["jupyter", "notebook", "--port=8888", "--no-browser", "--ip=0.0.0.0"]
